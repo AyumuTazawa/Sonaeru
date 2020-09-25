@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>243527177754-ngpko9j5faentctmm7m064ito5a5j76f.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.243527177754-ngpko9j5faentctmm7m064ito5a5j76f</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCQZLIqoUWTEPbCdOWyE_QocPrzw2erlYA</string>
+	<key>GCM_SENDER_ID</key>
+	<string>243527177754</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>net.ayumutazawa.Sonaeru</string>
+	<key>PROJECT_ID</key>
+	<string>sonaeru-e9c46</string>
+	<key>STORAGE_BUCKET</key>
+	<string>sonaeru-e9c46.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:243527177754:ios:191f742f08f025831fe3a3</string>
+	<key>DATABASE_URL</key>
+	<string>https://sonaeru-e9c46.firebaseio.com</string>
+</dict>
+</plist>

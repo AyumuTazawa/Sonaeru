@@ -13,9 +13,12 @@
 		63263550251DE1A60015315E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6326354E251DE1A60015315E /* Main.storyboard */; };
 		63263552251DE1A90015315E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 63263551251DE1A90015315E /* Assets.xcassets */; };
 		63263555251DE1A90015315E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 63263553251DE1A90015315E /* LaunchScreen.storyboard */; };
+		6326355D251E0DB50015315E /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 6326355C251E0DB50015315E /* GoogleService-Info.plist */; };
+		645F9F53D222B8E5CEE0E35F /* Pods_Sonaeru.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 84C4D15F006D83D1A01EF7FA /* Pods_Sonaeru.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1E72B8362508E3ABD9CEF348 /* Pods-Sonaeru.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sonaeru.debug.xcconfig"; path = "Target Support Files/Pods-Sonaeru/Pods-Sonaeru.debug.xcconfig"; sourceTree = "<group>"; };
 		63263545251DE1A60015315E /* Sonaeru.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sonaeru.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		63263548251DE1A60015315E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		6326354A251DE1A60015315E /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -24,6 +27,9 @@
 		63263551251DE1A90015315E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		63263554251DE1A90015315E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		63263556251DE1A90015315E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6326355C251E0DB50015315E /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		84C4D15F006D83D1A01EF7FA /* Pods_Sonaeru.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Sonaeru.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B2067C6CEB60832571E04078 /* Pods-Sonaeru.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Sonaeru.release.xcconfig"; path = "Target Support Files/Pods-Sonaeru/Pods-Sonaeru.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,6 +37,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				645F9F53D222B8E5CEE0E35F /* Pods_Sonaeru.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -42,6 +49,8 @@
 			children = (
 				63263547251DE1A60015315E /* Sonaeru */,
 				63263546251DE1A60015315E /* Products */,
+				E76E91B794F896438C304575 /* Pods */,
+				6D795B800C58078A1E0F9B03 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -63,8 +72,27 @@
 				63263551251DE1A90015315E /* Assets.xcassets */,
 				63263553251DE1A90015315E /* LaunchScreen.storyboard */,
 				63263556251DE1A90015315E /* Info.plist */,
+				6326355C251E0DB50015315E /* GoogleService-Info.plist */,
 			);
 			path = Sonaeru;
+			sourceTree = "<group>";
+		};
+		6D795B800C58078A1E0F9B03 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				84C4D15F006D83D1A01EF7FA /* Pods_Sonaeru.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E76E91B794F896438C304575 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				1E72B8362508E3ABD9CEF348 /* Pods-Sonaeru.debug.xcconfig */,
+				B2067C6CEB60832571E04078 /* Pods-Sonaeru.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -74,9 +102,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 63263559251DE1A90015315E /* Build configuration list for PBXNativeTarget "Sonaeru" */;
 			buildPhases = (
+				9BB334759806D6FE95D78A24 /* [CP] Check Pods Manifest.lock */,
 				63263541251DE1A60015315E /* Sources */,
 				63263542251DE1A60015315E /* Frameworks */,
 				63263543251DE1A60015315E /* Resources */,
+				D31E86C6E7E6E0A42B20C591 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -126,12 +156,55 @@
 			buildActionMask = 2147483647;
 			files = (
 				63263555251DE1A90015315E /* LaunchScreen.storyboard in Resources */,
+				6326355D251E0DB50015315E /* GoogleService-Info.plist in Resources */,
 				63263552251DE1A90015315E /* Assets.xcassets in Resources */,
 				63263550251DE1A60015315E /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		9BB334759806D6FE95D78A24 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-Sonaeru-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		D31E86C6E7E6E0A42B20C591 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Sonaeru/Pods-Sonaeru-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Sonaeru/Pods-Sonaeru-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Sonaeru/Pods-Sonaeru-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		63263541251DE1A60015315E /* Sources */ = {
@@ -282,6 +355,7 @@
 		};
 		6326355A251DE1A90015315E /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 1E72B8362508E3ABD9CEF348 /* Pods-Sonaeru.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
@@ -300,6 +374,7 @@
 		};
 		6326355B251DE1A90015315E /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B2067C6CEB60832571E04078 /* Pods-Sonaeru.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
