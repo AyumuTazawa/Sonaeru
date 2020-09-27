@@ -8,6 +8,7 @@
 
 import UIKit
 import Firebase
+import PromiseKit
 
 class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
@@ -27,24 +28,31 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        database.collection("Prepare").getDocuments { (snapshot, err) in
-                   if err == nil, let snapshot = snapshot {
-                       self.postArray = []
-                       print(snapshot.documents)
-                       for document in snapshot.documents {
-                           print("成功しました")
-                           print(document.data())
-                           
-                           let data = document.data()
-                           let post = PrepareData(data: data)
-                           self.postArray.append(post)
-                           
-                           self.prepareTopicListTableView.reloadData()
-                           
-                       }
-                   }
-               }
-               
+        getData().done { posts in
+            print(posts)
+            self.postArray = posts
+            self.prepareTopicListTableView.reloadData()
+        }.catch { err in
+            print(err)
+        }
+        
+    }
+    
+    func getData() -> Promise<[PrepareData]> {
+        return Promise { resolver in
+            database.collection("Prepare").getDocuments { (snapshot, err) in
+                if let err = err {
+                    resolver.reject(err)
+                }
+                if let snapshot = snapshot {
+                    
+                    print(snapshot.documents)
+                    let posts = snapshot.documents.map {PrepareData(data: $0.data())}
+                    resolver.fulfill(posts)
+                }
+                
+            }
+        }
     }
     
    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -64,3 +72,21 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
    
 
 }
+
+/* database.collection("Prepare").getDocuments { (snapshot, err) in
+                  if err == nil, let snapshot = snapshot {
+                      self.postArray = []
+                      print(snapshot.documents)
+                      for document in snapshot.documents {
+                          print("成功しました")
+                          print(document.data())
+                          
+                          let data = document.data()
+                          let post = PrepareData(data: data)
+                          self.postArray.append(post)
+                          
+                          self.prepareTopicListTableView.reloadData()
+                          
+                      }
+                  }
+              }*/
