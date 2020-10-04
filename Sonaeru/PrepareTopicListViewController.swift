@@ -62,6 +62,10 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "prepareTopicCell", for: indexPath) as! PrepareTopicTableViewCell
         cell.setCell(prepare: postArray[indexPath.row])
+        
+        cell.mainBackground.layer.cornerRadius = 8
+        cell.mainBackground.layer.masksToBounds = true
+        cell.backgroundColor = .systemGray6
         return cell
     }
    
@@ -69,7 +73,16 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
         return 80
     }
     
-   
+   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+       performSegue(withIdentifier: "toDetail",sender: nil)
+       // セルの選択を解除
+       tableView.deselectRow(at: indexPath, animated: true)
+   }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "toDetail" {
+        }
+    }
 
 }
 
