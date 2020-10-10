@@ -116,11 +116,14 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
        tableView.deselectRow(at: indexPath, animated: true)
    }
     
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "toDetail" {
-            let prepareDetailViewContorollre = segue.description as! PrepareDetailViewController
-            let selectIndex = prepareTopicListTableView.indexPathForSelectedRow!
-            prepareDetailViewContorollre.selectTopic = postArray[selectIndex.row]
+            //次の画面の取得
+            let detailViewContorollre = segue.destination as! PrepareDetailViewController
+            let selectedIndex = prepareTopicListTableView.indexPathForSelectedRow!
+            detailViewContorollre.selectTopic = postArray[selectedIndex.row]
+            
         
         }
     }
