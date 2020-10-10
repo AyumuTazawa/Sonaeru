@@ -14,6 +14,7 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
     
     var database: Firestore!
     var postArray: [PrepareData] = []
+    var inputTextField: UITextField?
 
     @IBOutlet weak var prepareTopicListTableView: UITableView!
     
@@ -55,6 +56,42 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
         }
     }
     
+    
+    @IBAction func addTopic(_ sender: Any) {
+        let alertController: UIAlertController = UIAlertController(title: "文言タイトル", message: "メッセージ", preferredStyle: .alert)
+        let cancelAction: UIAlertAction = UIAlertAction(title: "キャンセル", style: .cancel) { action -> Void in
+        }
+        alertController.addAction(cancelAction)
+        let addAction: UIAlertAction = UIAlertAction(title: "追加", style: .default) { action -> Void in
+            do {
+                self.addPrepareTitle()
+                self.getData().done { posts in
+                    print(posts)
+                    self.postArray = posts
+                    self.prepareTopicListTableView.reloadData()
+                }
+            } catch {
+                print("エラー")
+            }
+        }
+        
+        alertController.addAction(addAction)
+        alertController.addTextField { textField -> Void in
+            self.inputTextField = textField
+            textField.placeholder = "追加するテキスト"
+        }
+        present(alertController, animated: true, completion: nil)
+        }
+
+    func addPrepareTitle() {
+            guard let addTitle = inputTextField?.text else {return}
+            print( addTitle)
+            //let addTitle = addText
+            let saveTitle = Firestore.firestore().collection("Prepare").document()
+            saveTitle.setData(["topic": addTitle])
+    }
+    
+    
    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
          return self.postArray.count
     }
@@ -81,8 +118,14 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "toDetail" {
+            let prepareDetailViewContorollre = segue.description as! PrepareDetailViewController
+            let selectIndex = prepareTopicListTableView.indexPathForSelectedRow!
+            prepareDetailViewContorollre.selectTopic = postArray[selectIndex.row]
+        
         }
     }
+    
+    
 
 }
 
