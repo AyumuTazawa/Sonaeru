@@ -10,16 +10,22 @@ import UIKit
 import Firebase
 import PromiseKit
 
+
 class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
     var database: Firestore!
+    var selectTitle: PrepareData!
     var postArray: [PrepareData] = []
     var inputTextField: UITextField?
+    var text: UITextField!
 
+    
     @IBOutlet weak var prepareTopicListTableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+    
 
         database = Firestore.firestore()
         prepareTopicListTableView.delegate = self
@@ -29,6 +35,19 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
     }
     
     override func viewWillAppear(_ animated: Bool) {
+        /*getData().done { posts in
+            print(posts)
+            self.postArray = posts
+            self.prepareTopicListTableView.reloadData()
+        }.catch { err in
+            print(err)
+        }*/
+        self.takeData()
+        
+    }
+    
+    //データをFirestoreから受け取ってtableviewを更新する
+    func takeData() {
         getData().done { posts in
             print(posts)
             self.postArray = posts
@@ -36,8 +55,8 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
         }.catch { err in
             print(err)
         }
-        
     }
+    
     
     func getData() -> Promise<[PrepareData]> {
         return Promise { resolver in
@@ -58,21 +77,24 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
     
     
     @IBAction func addTopic(_ sender: Any) {
-        let alertController: UIAlertController = UIAlertController(title: "文言タイトル", message: "メッセージ", preferredStyle: .alert)
+        
+        let alertController: UIAlertController = UIAlertController(title: "タイトルを入力してください", message: "備える災害を設定してください", preferredStyle: .alert)
         let cancelAction: UIAlertAction = UIAlertAction(title: "キャンセル", style: .cancel) { action -> Void in
         }
         alertController.addAction(cancelAction)
         let addAction: UIAlertAction = UIAlertAction(title: "追加", style: .default) { action -> Void in
+             //SVProgressHUD.show()
             do {
                 self.addPrepareTitle()
                 self.getData().done { posts in
                     print(posts)
                     self.postArray = posts
                     self.prepareTopicListTableView.reloadData()
-                }
+                                      }
             } catch {
                 print("エラー")
             }
+            
         }
         
         alertController.addAction(addAction)
@@ -81,6 +103,7 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
             textField.placeholder = "追加するテキスト"
         }
         present(alertController, animated: true, completion: nil)
+       
         }
 
     func addPrepareTitle() {
@@ -88,7 +111,7 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
             print( addTitle)
             //let addTitle = addText
             let saveTitle = Firestore.firestore().collection("Prepare").document()
-            saveTitle.setData(["topic": addTitle])
+        saveTitle.setData(["topic": addTitle, "prepareID": saveTitle.documentID])
     }
     
     
@@ -103,6 +126,7 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
         cell.mainBackground.layer.cornerRadius = 8
         cell.mainBackground.layer.masksToBounds = true
         cell.backgroundColor = .systemGray6
+       // return cell
         return cell
     }
    
@@ -129,6 +153,99 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
     }
     
     
+    
+    // スワイプボタン
+    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        let upDateAction = UITableViewRowAction(style: .default, title: "Detail"){ action, indexPath in
+            // Do anything
+            //let selectedCell = self.prepareTopicListTableView.indexPathForSelectedRow!
+            self.selectTitle = self.postArray[indexPath.row]
+            print(self.selectTitle.topic)
+            self.updateTitleAlret()
+            
+        }
+        
+        //Cell削除&Firestoreからも削除
+        let deleteAction = UITableViewRowAction(style: .default, title: "削除"){ action, indexPath in
+            //Firebaseからも削除
+            self.selectTitle = self.postArray[indexPath.row]
+            self.deleteTitle()
+            
+        }
+        
+        return [upDateAction, deleteAction]
+    }
+    
+    
+    
+    //Titleの更新
+    func updateTitleAlret() {
+        //Cellの情報を取得
+        //let selectedCell = prepareTopicListTableView.indexPathForSelectedRow!
+       // selectTitle = postArray[selectedCell.row]
+        //アラートを表示
+        let alertController: UIAlertController = UIAlertController(title: "文言タイトル", message: "メッセージ", preferredStyle: .alert)
+        let cancelAction: UIAlertAction = UIAlertAction(title: "キャンセル", style: .cancel) { action -> Void in
+        }
+        alertController.addAction(cancelAction)
+        let addAction: UIAlertAction = UIAlertAction(title: "追加", style: .default) { action -> Void in
+            
+            do {
+                self.upDateTitle()
+                self.takeData()
+            } catch {
+                print("エラー")
+            }
+        }
+        alertController.addAction(addAction)
+            alertController.addTextField { textField -> Void in
+                
+                textField.placeholder = "追加するテキスト"
+                //textField.text = self.selectTitle.topic
+                //let updataTitleTxt = textField.text
+                self.text = textField
+        }
+            present(alertController, animated: true, completion: nil)
+            
+        }
+        
+    //Firestoreのタイトルを更新
+    func upDateTitle() {
+        let updateTitle = self.text.text
+        
+        let ref = Firestore.firestore().collection("Prepare").document(self.selectTitle.prepareId)
+        ref.updateData(["topic": updateTitle])
+    }
+      
+        //削除
+    func deleteTitle() {
+        //アラートを表示
+        let alertController: UIAlertController = UIAlertController(title: "削除しますか", message: "メッセージ", preferredStyle: .alert)
+        let cancelAction: UIAlertAction = UIAlertAction(title: "キャンセル", style: .cancel) { action -> Void in
+        }
+        alertController.addAction(cancelAction)
+        let addAction: UIAlertAction = UIAlertAction(title: "削除", style: .default) { action -> Void in
+            
+            do {
+                self.deletePrepareData()
+                self.takeData()
+            } catch {
+                print("エラー")
+            }
+        }
+        alertController.addAction(addAction)
+        present(alertController, animated: true, completion: nil)
+        
+    }
+        
+    //Title含めた全ての情報をTiresotoreから削除
+    func deletePrepareData() -> Promise <Void> {
+        return Promise { resolver in
+            Firestore.firestore().collection("Prepare").document(self.selectTitle.prepareId).delete()
+            
+        }
+    }
+
 
 }
 
