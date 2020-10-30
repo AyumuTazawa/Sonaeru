@@ -8,6 +8,7 @@
 
 import UIKit
 import Firebase
+import PromiseKit
 
 class PrepareDetailViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
@@ -29,30 +30,37 @@ class PrepareDetailViewController: UIViewController, UITableViewDelegate, UITabl
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        let prepareId = selectTopic.prepareId
-        database.collection("Prepare").document(prepareId).collection("Details").addSnapshotListener { (snapshots, err) in
-            if err == nil, let snapshots = snapshots {
-                self.prepareDetailArry = []
-                print(snapshots.documents)
-                for document in snapshots.documents {
-                    print("成功しました")
-                    print(document.data())
-                    
-                    let data = document.data()
-                    let post = PrepareDetailData(data: data)
-                    self.prepareDetailArry.append(post)
-                    
-                    self.prepareDetailList.reloadData()
-                    
-                }
-            }
-            
-        }
+        
+        self.fostDetailData()
+       
     }
     
+    func fostDetailData() {
+        fechDetailData().done { detailposts in
+            self.prepareDetailArry = detailposts
+        }.catch { err in
+            print(err)
+        }.finally {
+            self.prepareDetailList.reloadData()
+        }
+        
+    }
     
-    
-    
+    func fechDetailData() -> Promise<[PrepareDetailData]> {
+        return Promise { resolver in
+            let prepareId = selectTopic.prepareId
+            Firestore.firestore().collection(prepareId).getDocuments { (snapshot, err) in
+                if let err = err {
+                    resolver.reject(err)
+                }
+                if let snapshot = snapshot {
+                    let detailposts = snapshot.documents.map {PrepareDetailData(data: $0.data())}
+                }
+            }
+        }
+    }
+        
+        
     
     
     
