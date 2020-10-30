@@ -29,36 +29,30 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
 
         database = Firestore.firestore()
         prepareTopicListTableView.delegate = self
-       prepareTopicListTableView.dataSource = self
+        prepareTopicListTableView.dataSource = self
         prepareTopicListTableView.register(UINib(nibName: "PrepareTopicTableViewCell", bundle: nil),  forCellReuseIdentifier: "prepareTopicCell")
        
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        /*getData().done { posts in
-            print(posts)
-            self.postArray = posts
-            self.prepareTopicListTableView.reloadData()
-        }.catch { err in
-            print(err)
-        }*/
-        self.takeData()
+    
+        self.fostTableViewData()
+        
         
     }
     
-    //データをFirestoreから受け取ってtableviewを更新する
-    func takeData() {
-        getData().done { posts in
-            print(posts)
+    func fostTableViewData() {
+        fechData().done { posts in
             self.postArray = posts
-            self.prepareTopicListTableView.reloadData()
         }.catch { err in
             print(err)
+        }.finally {
+            self.prepareTopicListTableView.reloadData()
         }
     }
     
     
-    func getData() -> Promise<[PrepareData]> {
+    func fechData() -> Promise<[PrepareData]> {
         return Promise { resolver in
             database.collection("Prepare").getDocuments { (snapshot, err) in
                 if let err = err {
@@ -83,16 +77,23 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
         }
         alertController.addAction(cancelAction)
         let addAction: UIAlertAction = UIAlertAction(title: "追加", style: .default) { action -> Void in
-             //SVProgressHUD.show()
-            do {
+             
+            /*do {
                 self.addPrepareTitle()
-                self.getData().done { posts in
-                    print(posts)
-                    self.postArray = posts
-                    self.prepareTopicListTableView.reloadData()
-                                      }
+                self.fostTableViewData()
+                                      
             } catch {
                 print("エラー")
+            }*/
+            
+            firstly {
+                self.addPrepareTitle()
+            };self.fechData().done { posts in
+                self.postArray = posts
+            }.done {
+                self.prepareTopicListTableView.reloadData()
+            }.catch { err in
+                print(err)
             }
             
         }
@@ -106,14 +107,28 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
        
         }
 
-    func addPrepareTitle() {
-            guard let addTitle = inputTextField?.text else {return}
-            print( addTitle)
-            //let addTitle = addText
-            let saveTitle = Firestore.firestore().collection("Prepare").document()
-        saveTitle.setData(["topic": addTitle, "prepareID": saveTitle.documentID])
-    }
+    /*func addPrepareTitle1() {
+        //3秒ごに実行
+        //DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            guard let addTitle = self.inputTextField?.text else {return}
+                       print( addTitle)
+                       //let addTitle = addText
+                       let saveTitle = Firestore.firestore().collection("Prepare").document()
+                   saveTitle.setData(["topic": addTitle, "prepareID": saveTitle.documentID])
+        //}
+           
+    }*/
     
+    func addPrepareTitle() -> Promise<Void> {
+        return Promise { reslver in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            guard let addTitle = self.inputTextField?.text else {return}
+            print( addTitle)
+            let saveTitle = Firestore.firestore().collection("Prepare").document()
+            saveTitle.setData(["topic": addTitle, "prepareID": saveTitle.documentID])
+            }
+        }
+    }
     
    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
          return self.postArray.count
@@ -169,6 +184,7 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
         let deleteAction = UITableViewRowAction(style: .default, title: "削除"){ action, indexPath in
             //Firebaseからも削除
             self.selectTitle = self.postArray[indexPath.row]
+            self.deleteDetailData()
             self.deleteTitle()
             
         }
@@ -192,7 +208,7 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
             
             do {
                 self.upDateTitle()
-                self.takeData()
+                self.fostTableViewData()
             } catch {
                 print("エラー")
             }
@@ -228,7 +244,7 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
             
             do {
                 self.deletePrepareData()
-                self.takeData()
+                self.fostTableViewData()
             } catch {
                 print("エラー")
             }
@@ -246,6 +262,11 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
         }
     }
 
+    func deleteDetailData() -> Promise<Void> {
+        return Promise { resolver in
+            Firestore.firestore().collection(self.selectTitle.prepareId).document(self.selectTitle.prepareId).delete()
+        }
+    }
 
 }
 
