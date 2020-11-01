@@ -12,7 +12,6 @@ import PromiseKit
 
 class PrepareDetailViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
     
-    
     var database: Firestore!
     var selectTopic: PrepareData!
     var prepareDetailArry: [PrepareDetailData] = []
@@ -49,21 +48,18 @@ class PrepareDetailViewController: UIViewController, UITableViewDelegate, UITabl
     func fechDetailData() -> Promise<[PrepareDetailData]> {
         return Promise { resolver in
             let prepareId = selectTopic.prepareId
-            Firestore.firestore().collection(prepareId).getDocuments { (snapshot, err) in
+            Firestore.firestore().collection("task").whereField("prepareID", isEqualTo: prepareId).getDocuments { (snapshot, err) in
                 if let err = err {
                     resolver.reject(err)
                 }
                 if let snapshot = snapshot {
                     let detailposts = snapshot.documents.map {PrepareDetailData(data: $0.data())}
+                    resolver.fulfill(detailposts)
                 }
             }
         }
     }
-        
-        
-    
-    
-    
+
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return self.prepareDetailArry.count
     }
@@ -81,10 +77,6 @@ class PrepareDetailViewController: UIViewController, UITableViewDelegate, UITabl
         return 1
     }
 
-    
-    
-    
-    
     //画面遷移＆値受け渡し
     @IBAction func toAddPrepareViewContoroller(_ sender: Any) {
         performSegue(withIdentifier: "toAdd", sender: nil)
@@ -93,9 +85,7 @@ class PrepareDetailViewController: UIViewController, UITableViewDelegate, UITabl
         if segue.identifier == "toAdd" {
             let addReviewContorollre = segue.destination as? AddPrepareViewController
             addReviewContorollre?.selectPrepareData = self.selectTopic
-            
-                   
-               }
+        }
     }
     
 
