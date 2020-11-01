@@ -78,20 +78,14 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
         alertController.addAction(cancelAction)
         let addAction: UIAlertAction = UIAlertAction(title: "追加", style: .default) { action -> Void in
              
-            /*do {
-                self.addPrepareTitle()
-                self.fostTableViewData()
-                                      
-            } catch {
-                print("エラー")
-            }*/
-            
             firstly {
-                self.addPrepareTitle()
-            };self.fechData().done { posts in
-                self.postArray = posts
-            }.done {
-                self.prepareTopicListTableView.reloadData()
+            self.addPrepareTitle()
+            }.then {
+                self.fechData()
+            }.done { posts in
+                    self.postArray = posts
+                    self.prepareTopicListTableView.reloadData()
+                    print("reloadData")
             }.catch { err in
                 print(err)
             }
@@ -107,17 +101,6 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
        
         }
 
-    /*func addPrepareTitle1() {
-        //3秒ごに実行
-        //DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            guard let addTitle = self.inputTextField?.text else {return}
-                       print( addTitle)
-                       //let addTitle = addText
-                       let saveTitle = Firestore.firestore().collection("Prepare").document()
-                   saveTitle.setData(["topic": addTitle, "prepareID": saveTitle.documentID])
-        //}
-           
-    }*/
     
     func addPrepareTitle() -> Promise<Void> {
         return Promise { reslver in
@@ -126,6 +109,7 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
             print( addTitle)
             let saveTitle = Firestore.firestore().collection("Prepare").document()
             saveTitle.setData(["topic": addTitle, "prepareID": saveTitle.documentID])
+            reslver.fulfill(())
             }
         }
     }
