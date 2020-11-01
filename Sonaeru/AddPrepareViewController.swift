@@ -40,16 +40,13 @@ class AddPrepareViewController: UIViewController {
         return Promise { resolver in
             let addDay = addDayUITextField.text
             let addMemo = addMemoUITextView.text
-            let addMemoData = ["day": addDay, "memo": addMemo]
             let prepareID = selectPrepareData.prepareId
-            print(prepareID)
-            //let saaveDetailDat = Firestore.firestore().collection("Bosai").document(selectPrepareData.prepareId).collection("Details").document()
-            Firestore.firestore().collection("Prepare").document(prepareID).collection("Details").document().setData(addMemoData) { err in
+            let addMemoData = ["day": addDay, "memo": addMemo, "prepareID": prepareID]
+            Firestore.firestore().collection("task").document().setData(addMemoData) { err in
                 if let err = err {
                     print("失敗")
                 } else {
-                  // let detailViewController = self.storyboard?.instantiateViewController(withIdentifier: "PrepareDetailViewContorollre") as! PrepareDetailViewController
-                   //self.present(detailViewController, animated: true, completion: nil)
+                    
                 }
             }
         }
