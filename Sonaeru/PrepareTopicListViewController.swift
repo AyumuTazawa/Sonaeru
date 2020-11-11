@@ -18,8 +18,9 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
     var postArray: [PrepareData] = []
     var inputTextField: UITextField?
     var text: UITextField!
+    private let refreshContorol = UIRefreshControl()
     @IBOutlet weak var prepareTopicListTableView: UITableView!
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -27,13 +28,14 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
         prepareTopicListTableView.delegate = self
         prepareTopicListTableView.dataSource = self
         prepareTopicListTableView.register(UINib(nibName: "PrepareTopicTableViewCell", bundle: nil),  forCellReuseIdentifier: "prepareTopicCell")
+        prepareTopicListTableView.refreshControl = refreshContorol
+        refreshContorol.addTarget(self, action: #selector(PrepareTopicListViewController.refresh(sender:)), for: .valueChanged)
         
     }
     
     override func viewWillAppear(_ animated: Bool) {
         //prepareTopicListTableViewにtopicを反映
         self.fostTableViewData()
-        
     }
     
     //prepareTopicListTableViewにtopic入れる
@@ -129,15 +131,11 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
         let deleteAction = UITableViewRowAction(style: .default, title: "削除"){ action, indexPath in
             //Firebaseからも削除
             self.selectTitle = self.postArray[indexPath.row]
-            self.deleteTask()
+            //self.deleteTask()
             self.deleteTitle()
-            
         }
-        
         return [upDateAction, deleteAction]
     }
-    
-    
     
     //Titleの更新
     func updateTitleAlret() {
@@ -226,10 +224,10 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
         }
     }
     
-    func deleteTask() -> Promise<Void> {
-        return Promise { resolver in
-            Firestore.firestore().collection("task").document(self.selectTitle.prepareId).delete()
-        }
+    //紙に引っ張ってTableViewを更新
+    @objc func refresh(sender: UIRefreshControl) {
+        self.fostTableViewData()
+        refreshContorol.endRefreshing()
     }
     
     //以下Tableviewの設定
@@ -257,7 +255,6 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
         // セルの選択を解除
         tableView.deselectRow(at: indexPath, animated: true)
     }
-    
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "toDetail" {
