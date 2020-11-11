@@ -18,29 +18,25 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
     var postArray: [PrepareData] = []
     var inputTextField: UITextField?
     var text: UITextField!
-
-    
     @IBOutlet weak var prepareTopicListTableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-    
-
         database = Firestore.firestore()
         prepareTopicListTableView.delegate = self
         prepareTopicListTableView.dataSource = self
         prepareTopicListTableView.register(UINib(nibName: "PrepareTopicTableViewCell", bundle: nil),  forCellReuseIdentifier: "prepareTopicCell")
-       
+        
     }
     
     override func viewWillAppear(_ animated: Bool) {
-    
+        //prepareTopicListTableViewにtopicを反映
         self.fostTableViewData()
-        
         
     }
     
+    //prepareTopicListTableViewにtopic入れる
     func fostTableViewData() {
         fechData().done { posts in
             self.postArray = posts
@@ -51,7 +47,7 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
         }
     }
     
-    
+    //Prepare取得
     func fechData() -> Promise<[PrepareData]> {
         return Promise { resolver in
             database.collection("Prepare").getDocuments { (snapshot, err) in
@@ -59,37 +55,23 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
                     resolver.reject(err)
                 }
                 if let snapshot = snapshot {
-                    
                     print(snapshot.documents)
                     let posts = snapshot.documents.map {PrepareData(data: $0.data())}
                     resolver.fulfill(posts)
                 }
-                
             }
         }
     }
     
     
     @IBAction func addTopic(_ sender: Any) {
-        
         let alertController: UIAlertController = UIAlertController(title: "タイトルを入力してください", message: "備える災害を設定してください", preferredStyle: .alert)
         let cancelAction: UIAlertAction = UIAlertAction(title: "キャンセル", style: .cancel) { action -> Void in
         }
         alertController.addAction(cancelAction)
         let addAction: UIAlertAction = UIAlertAction(title: "追加", style: .default) { action -> Void in
-             
-            firstly {
-            self.addPrepareTitle()
-            }.then {
-                self.fechData()
-            }.done { posts in
-                    self.postArray = posts
-                    self.prepareTopicListTableView.reloadData()
-                    print("reloadData")
-            }.catch { err in
-                print(err)
-            }
-            
+            //TopicをFirestoreに追加
+            self.uploadTopic()
         }
         
         alertController.addAction(addAction)
@@ -98,66 +80,45 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
             textField.placeholder = "追加するテキスト"
         }
         present(alertController, animated: true, completion: nil)
-       
-        }
-
+    }
     
+    //TopicをFirestoreに追加してリロード
+    func uploadTopic() {
+        firstly {
+            self.addPrepareTitle()
+        }.then {
+            self.fechData()
+        }.done { posts in
+            self.postArray = posts
+            self.prepareTopicListTableView.reloadData()
+            print("reloadData")
+        }.catch { err in
+            print(err)
+        }
+    }
+    //TopicをFirestoreに追加
     func addPrepareTitle() -> Promise<Void> {
         return Promise { reslver in
             DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
-            guard let addTitle = self.inputTextField?.text else {return}
-            print( addTitle)
-            let saveTitle = Firestore.firestore().collection("Prepare").document()
-            saveTitle.setData(["topic": addTitle, "prepareID": saveTitle.documentID])
-            reslver.fulfill(())
+                guard let addTitle = self.inputTextField?.text else {return}
+                print( addTitle)
+                let saveTitle = Firestore.firestore().collection("Prepare").document()
+                saveTitle.setData(["topic": addTitle, "prepareID": saveTitle.documentID]) { (err) in
+                    if let err = err {
+                        print(err)
+                    } else {
+                        reslver.fulfill(())
+                    }
+                }
             }
         }
     }
-    
-   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-         return self.postArray.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "prepareTopicCell", for: indexPath) as! PrepareTopicTableViewCell
-        cell.setCell(prepare: postArray[indexPath.row])
-        
-        cell.mainBackground.layer.cornerRadius = 8
-        cell.mainBackground.layer.masksToBounds = true
-        cell.backgroundColor = .systemGray6
-       // return cell
-        return cell
-    }
-   
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 80
-    }
-    
-   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-       performSegue(withIdentifier: "toDetail",sender: nil)
-       // セルの選択を解除
-       tableView.deselectRow(at: indexPath, animated: true)
-   }
-    
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "toDetail" {
-            //次の画面の取得
-            let detailViewContorollre = segue.destination as! PrepareDetailViewController
-            let selectedIndex = prepareTopicListTableView.indexPathForSelectedRow!
-            detailViewContorollre.selectTopic = postArray[selectedIndex.row]
-            
-        
-        }
-    }
-    
     
     
     // スワイプボタン
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         let upDateAction = UITableViewRowAction(style: .default, title: "Detail"){ action, indexPath in
-            // Do anything
-            //let selectedCell = self.prepareTopicListTableView.indexPathForSelectedRow!
+            
             self.selectTitle = self.postArray[indexPath.row]
             print(self.selectTitle.topic)
             self.updateTitleAlret()
@@ -168,7 +129,7 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
         let deleteAction = UITableViewRowAction(style: .default, title: "削除"){ action, indexPath in
             //Firebaseからも削除
             self.selectTitle = self.postArray[indexPath.row]
-            self.deleteDetailData()
+            self.deleteTask()
             self.deleteTitle()
             
         }
@@ -180,44 +141,51 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
     
     //Titleの更新
     func updateTitleAlret() {
-        //Cellの情報を取得
-        //let selectedCell = prepareTopicListTableView.indexPathForSelectedRow!
-       // selectTitle = postArray[selectedCell.row]
         //アラートを表示
         let alertController: UIAlertController = UIAlertController(title: "文言タイトル", message: "メッセージ", preferredStyle: .alert)
         let cancelAction: UIAlertAction = UIAlertAction(title: "キャンセル", style: .cancel) { action -> Void in
         }
         alertController.addAction(cancelAction)
         let addAction: UIAlertAction = UIAlertAction(title: "追加", style: .default) { action -> Void in
-            
-            do {
-                self.upDateTitle()
-                self.fostTableViewData()
-            } catch {
-                print("エラー")
-            }
+            //Titleの更新を実行
+            self.runUpdateTitle()
         }
         alertController.addAction(addAction)
-            alertController.addTextField { textField -> Void in
-                
-                textField.placeholder = "追加するテキスト"
-                //textField.text = self.selectTitle.topic
-                //let updataTitleTxt = textField.text
-                self.text = textField
+        alertController.addTextField { textField -> Void in
+            textField.placeholder = "追加するテキスト"
+            self.text = textField
         }
-            present(alertController, animated: true, completion: nil)
-            
-        }
+        present(alertController, animated: true, completion: nil)
         
-    //Firestoreのタイトルを更新
-    func upDateTitle() {
-        let updateTitle = self.text.text
-        
-        let ref = Firestore.firestore().collection("Prepare").document(self.selectTitle.prepareId)
-        ref.updateData(["topic": updateTitle])
     }
-      
-        //削除
+    
+    //Titleの更新を実行
+    func runUpdateTitle() {
+        firstly {
+            self.upDateTitle()
+        }.done {
+            self.fostTableViewData()
+        }.catch { err in
+            print(err)
+        }
+    }
+    
+    //Firestoreのタイトルを更新
+    func upDateTitle() -> Promise<Void> {
+        return Promise { resolver in
+            let updateTitle = self.text.text
+            let ref = Firestore.firestore().collection("Prepare").document(self.selectTitle.prepareId)
+            ref.updateData(["topic": updateTitle]) { (err) in
+                if let err = err {
+                    print(err)
+                } else {
+                    resolver.fulfill(())
+                }
+            }
+        }
+    }
+    
+    //削除
     func deleteTitle() {
         //アラートを表示
         let alertController: UIAlertController = UIAlertController(title: "削除しますか", message: "メッセージ", preferredStyle: .alert)
@@ -225,49 +193,79 @@ class PrepareTopicListViewController: UIViewController, UITableViewDelegate, UIT
         }
         alertController.addAction(cancelAction)
         let addAction: UIAlertAction = UIAlertAction(title: "削除", style: .default) { action -> Void in
-            
-            do {
-                self.deletePrepareData()
-                self.fostTableViewData()
-            } catch {
-                print("エラー")
-            }
+            //削除を実行
+            self.runDeleteTitle()
         }
         alertController.addAction(addAction)
         present(alertController, animated: true, completion: nil)
         
     }
-        
+    
+    //Titleの削除を実行
+    func runDeleteTitle() {
+        firstly {
+            self.deletePrepareData()
+        }.done {
+            self.fostTableViewData()
+        }.catch { err in
+            print(err)
+        }
+    }
+    
     //Title含めた全ての情報をTiresotoreから削除
     func deletePrepareData() -> Promise <Void> {
         return Promise { resolver in
-            Firestore.firestore().collection("Prepare").document(self.selectTitle.prepareId).delete()
-            
+            let prepareId = selectTitle.prepareId
+            Firestore.firestore().collection("Prepare").document(self.selectTitle.prepareId).delete() { (err) in
+                if let err = err {
+                    print(err)
+                } else {
+                    resolver.fulfill(())
+                }
+            }
         }
     }
-
-    func deleteDetailData() -> Promise<Void> {
+    
+    func deleteTask() -> Promise<Void> {
         return Promise { resolver in
-            Firestore.firestore().collection(self.selectTitle.prepareId).document(self.selectTitle.prepareId).delete()
+            Firestore.firestore().collection("task").document(self.selectTitle.prepareId).delete()
         }
     }
-
+    
+    //以下Tableviewの設定
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return self.postArray.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "prepareTopicCell", for: indexPath) as! PrepareTopicTableViewCell
+        cell.setCell(prepare: postArray[indexPath.row])
+        
+        cell.mainBackground.layer.cornerRadius = 8
+        cell.mainBackground.layer.masksToBounds = true
+        cell.backgroundColor = .systemGray6
+        // return cell
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 80
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: "toDetail",sender: nil)
+        // セルの選択を解除
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+    
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "toDetail" {
+            //次の画面の取得
+            let detailViewContorollre = segue.destination as! PrepareDetailViewController
+            let selectedIndex = prepareTopicListTableView.indexPathForSelectedRow!
+            detailViewContorollre.selectTopic = postArray[selectedIndex.row]
+        }
+    }
 }
 
-/* database.collection("Prepare").getDocuments { (snapshot, err) in
-                  if err == nil, let snapshot = snapshot {
-                      self.postArray = []
-                      print(snapshot.documents)
-                      for document in snapshot.documents {
-                          print("成功しました")
-                          print(document.data())
-                          
-                          let data = document.data()
-                          let post = PrepareData(data: data)
-                          self.postArray.append(post)
-                          
-                          self.prepareTopicListTableView.reloadData()
-                          
-                      }
-                  }
-              }*/
